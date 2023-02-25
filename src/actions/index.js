@@ -1,6 +1,6 @@
 import {actionPromise, gql,origUrl} from '../App';
 
-const bd_Url = "http://localhost:5000/"
+const bd_Url = "http://185.233.118.209:5000/"
 
 
 
