@@ -71,16 +71,16 @@ const SurveyCard = ({ survey, actionGetMyAnswers,actionDelete,setAlert,setDel, d
               {survey.question3 ? survey.question3 : ""}
             </Typography>
           </CardContent>
-          {role==='ADMIN'&&<Button
+        </CardActionArea>
+        {role==='ADMIN'&&<Button
               onClick={onClickDel}
               type="submit"
-              fullWidth
               variant="contained"
+              fullWidth
               color="secondary">
               Delete 
               <DeleteIcon/>
             </Button>}
-        </CardActionArea>
       </Card>
     </div>
     </>

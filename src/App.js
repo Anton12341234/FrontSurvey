@@ -7,8 +7,8 @@ import './App.scss';
 import SignIn from './components/signIn';
 import SignUp from './components/signup';
 import CreateAdConnect from './components/add';
-import AnswerUser from './components/good';
-import MainList from './components/goods'
+import AnswerUser from './components/survey';
+import MainList from './components/surveys'
 import HeaderConnect from './components/header'
 const history = require("history").createBrowserHistory()
 
