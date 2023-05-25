@@ -1,6 +1,7 @@
 .cards{
     display: flex;
     flex-wrap: wrap;
+	justify-content: center;
 }
 
 .product-wrapper {
@@ -24,15 +25,15 @@
 }
 
 .mainGoodsList{
-	background-color: #EEEFF1;
     padding: 26px 36px 20px 36px;
+	margin-top: 55px;
 }
 
 
 @media only screen and (max-width: 650px) {
 	.mainGoodsList{
-		background-color: #EEEFF1;
 		padding: 26px 16px 20px 16px;
+		margin-top: 55px;
 	}
 }
 

@@ -24,7 +24,7 @@ function Copyright() {
     <Typography variant="body2" color="textSecondary" align="center">
       {'Anton project © '}
       <Link color="inherit" href="https://mui.com/">
-        OLX
+        
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -67,7 +67,7 @@ function SignIn() {
     if (token) {
       store.dispatch(actionAuthLogin(token.token));
       setJwtToken(false)
-      history.push("/page/1")
+      history.push("/home")
     }else{
       setJwtToken(true)
     }

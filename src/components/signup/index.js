@@ -13,20 +13,19 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useState} from 'react';
-import { store, actionAuthLogin, history, jwtDecode } from '../../App.js';
+import { store, actionAuthLogin, history } from '../../App.js';
 import { useDispatch } from "react-redux";
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import InputAdornment from '@mui/material/InputAdornment';
 import { IconButton } from '@material-ui/core';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
-import { actionRegister, actionUpdateMe, actionLogin } from '../../actions';
+import { actionRegister, actionLogin } from '../../actions';
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Anton project © '}
       <Link color="inherit" href="https://mui.com/">
-        OLX
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -76,7 +75,7 @@ export default function SignUp() {
         console.log(token)
         if (token) {
           await store.dispatch(actionAuthLogin(token.token));
-          history.push("/page/1")
+          history.push("/home")
         }
       }else{
         setUser(true)

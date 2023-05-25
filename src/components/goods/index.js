@@ -1,170 +1,108 @@
 import { useState, useEffect } from 'react';
-import { Typography, Button } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
 import '../../App.scss';
 import './goods.scss';
-import { origUrl } from '../../App.js';
-import SearchIcon from '@material-ui/icons/Search';
 import CardActionArea from '@material-ui/core/CardActionArea';
-import Paper from '@material-ui/core/Paper';
-import InputBase from '@material-ui/core/InputBase';
-import { IconButton } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { history } from '../../App.js';
-import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
 import {connect } from 'react-redux';
-import { actionList, actionlistCount, actionListSearch, actionSearchCount,bd_Url } from '../../actions';
+import { useSelector } from 'react-redux';
+import { actionSurveys,actionGetMyAnswers,actionDelete} from '../../actions';
+import {AlertError} from '../alert'
 
-const useStyles = makeStyles((theme) => ({
+const useStylesImg = makeStyles({
   root: {
-    padding: '2px 4px',
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: '55px',
-    marginBottom: '0px',
-    width: '70%',
-    marginLeft: '16%'
+    margin: '14px'
   },
-  input: {
-    marginLeft: theme.spacing(1),
-    flex: 1,
+  media: {
+    height: 280,
   },
-  iconButton: {
-    padding: 10,
+  mediaButton: {
+    justifyContent: 'center'
   },
-  pagination: {
-    display: 'flex',
-    justifyContent: 'space-around',
-    margin: '40px'
+  time: {
+    margin: "5px",
+    float: "right"
+  },
+  card: {
+    textAlign: "center"
   }
-}));
+})
 
-const defaultImg = "https://www.lionstroy.ru/published/publicdata/U70619SHOP/attachments/SC/products_pictures/nophoto.png"
+const SurveyCard = ({ survey, actionGetMyAnswers,actionDelete,setAlert,setDel, del }) => {
+  const username = useSelector(state => state.promise?.user?.payload?.username)
+  const role = useSelector(state => state.auth?.payload?.roles[0])
 
-const GoodCard = ({ good, page }) => {
-  const [indexArr, setindexArr] = useState(0)
-  function timeConverter(UNIX_timestamp) {
-    const time = new Date(UNIX_timestamp);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[time.getMonth()];
-    const date = time.getDate();
-    const hour = time.getHours();
-    const min = time.getMinutes();
-    const newTime = date + ' ' + month + ' ' + hour + ':' + min;
-    return newTime;
-  }
 
-  const useStylesImg = makeStyles({
-    root: {
-      margin: '14px'
-    },
-    media: {
-      height: 280,
-    },
-    mediaButton: {
-      justifyContent: 'center'
-    },
-    time: {
-      margin: "5px",
-      float: "right"
-    },
-    card: {
-      textAlign: "center"
+  const onClickSurvey = async() => {
+    if(role==='USER'){
+      let answers = await actionGetMyAnswers(survey._id,username)
+      answers[0]? setAlert(true) :history.push("/survey/" + survey._id)
+    }else{
+      history.push("/survey/" + survey._id)
     }
-  })
-  const onClickGood = () => {
-    history.push(page + "/good/" + good._id)
   }
-  return (
+
+  const onClickDel = async() => {
+    await actionDelete(survey._id)
+    setDel(!del)
+  }
+
+  return (<>
     <div className="product-wrapper">
       <Card className={useStylesImg().root}>
         <CardActionArea className={useStylesImg().card}>
-          <CardMedia
-            className={useStylesImg().media}
-            onClick={() => indexArr === good.images.length - 1 ? setindexArr(0) : setindexArr(indexArr + 1)}
-            image={good.images && good.images[indexArr] ? bd_Url + good.images[indexArr].url : defaultImg}
-            title="Contemplative Reptile" />
-          <CardContent onClick={onClickGood}>
+          <CardContent onClick={onClickSurvey}>
             <Typography gutterBottom variant="h5" component="h2">
-              {good.title ? good.title : ""}
+              {survey.title ? survey.title : ""}
             </Typography>
-            <Typography gutterBottom variant="h6" component="h3">
-              {"Цена: " + (good.price ? good.price : 0) + " грн"}
+            <Typography gutterBottom  component="h5">
+              {survey.question1 ? survey.question1 : ""}
             </Typography>
-            <Typography className={useStylesImg().time} gutterBottom component="h5">
-              {timeConverter(+good.createdAt)}
+            <Typography gutterBottom  component="h5">
+              {survey.question2 ? survey.question2 : ""}
+            </Typography>
+            <Typography gutterBottom  component="h5">
+              {survey.question3 ? survey.question3 : ""}
             </Typography>
           </CardContent>
+          {role==='ADMIN'&&<Button
+              onClick={onClickDel}
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="secondary">
+              Delete 
+              <DeleteIcon/>
+            </Button>}
         </CardActionArea>
       </Card>
     </div>
+    </>
   )
 }
 
 
-// const ButtonAllList = ({allList,goodsArr,searchList})=>{
-//   if(JSON.stringify(goodsArr)===JSON.stringify(searchList)||goodsArr.length===0){
-//     return(<Button variant="outlined" onClick={allList}>all goods</Button>)
-//   }
-// }
 
+const Cards = ({status, surveys,actionSurveys,actionGetMyAnswers,actionDelete }) => {
+  const [surveyArr, setSurveyArr] = useState([]);
+  const [alert, setAlert] = useState(false);
+  const [del, setDel] = useState(false);
 
-const Cards = ({ actionList, actionlistCount, actionListSearch, actionSearchCount, status, count, list }) => {
-  const [search, setSearch] = useState('');
-  const [goodsArr, setGoodsArr] = useState([]);
-  const { _id } = useParams()
-  const [page, setPage] = useState(1);
-  const [buttonAllList, setButtonAllList] = useState(false);
-
+  useEffect(() => {
+    actionSurveys()
+  }, [del])
  
-  const limit = 15
-
-  const handleChange = (event, value) => {
-    let skip = value * limit - limit
-    history.push("/page/" + value)
-    setPage(value);
-    buttonAllList ? actionListSearch(search, skip, limit) : actionList(skip, limit)
-  };
-
-
+  
   useEffect(() => {
-    let skip = _id * limit - limit
-    actionlistCount()
-    actionList(skip, limit)
-    setPage(+_id)
-  }, [])
+    setSurveyArr(surveys)
+  }, [surveys])
 
-  useEffect(() => {
-    setGoodsArr(list)
-  }, [list])
-
-  const onclickSearch = () => {
-    if (search) {
-       setButtonAllList(true)
-       actionListSearch(search)
-       actionSearchCount(search)
-    }
-  }
-
-  const onClickAllList = () => {
-    actionList()
-    actionlistCount()
-    setButtonAllList(false)
-    setSearch('')
-  }
-
-  const enterHandler = (event) => {
-    if (event.key === 'Enter') {
-      onclickSearch()
-    }
-  }
-
-  const classes = useStyles()
 
   if (status === 'PENDING') {
     return (
@@ -173,56 +111,22 @@ const Cards = ({ actionList, actionlistCount, actionListSearch, actionSearchCoun
   }
   return (<>
     <main className="mainGoodsList">
-      <Paper component="form" className={classes.root}>
-        <IconButton
-          onClick={onclickSearch}
-          className={classes.iconButton}
-          aria-label="search">
-          <SearchIcon />
-        </IconButton>
-        <InputBase
-          onKeyPress={enterHandler}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className={classes.input}
-          placeholder="Search" />
-        {buttonAllList && <Button variant="outlined" onClick={onClickAllList}>all goods</Button>}
-      </Paper>
-      <Stack spacing={2}>
-        <Pagination
-          className={classes.pagination}
-          color="primary"
-          variant="outlined"
-          count={Math.ceil(count / limit)}
-          page={page}
-          onChange={handleChange} />
-      </Stack>
       <div className='cards'>
-        {goodsArr.map(el => <GoodCard key={el._id} page={_id} good={el} />)}
+        {surveyArr.map(el => <SurveyCard key={el._id} setAlert={setAlert} survey={el} actionGetMyAnswers={actionGetMyAnswers} actionDelete={actionDelete} setDel={setDel} del={del} />)}
       </div>
-      <Stack spacing={2}>
-        <Pagination
-          className={classes.pagination}
-          color="primary"
-          variant="outlined"
-          count={Math.ceil(count / limit)}
-          page={page}
-          onChange={handleChange} />
-      </Stack>
-    </main></>)
+    </main>
+    {alert&&<AlertError setAlert={setAlert}/>}</>)
 }
 
 
 const MainList = connect(state => ({
-  status: state.promise?.list?.status || [],
-  list: state.promise?.list?.payload || [],
-  count: state.promise?.listCount?.payload || [],
+  status: state.promise?.surveys?.status || [],
+  surveys: state.promise?.surveys?.payload || []
 }),
   {
-    actionList: actionList,
-    actionlistCount: actionlistCount,
-    actionListSearch: actionListSearch,
-    actionSearchCount: actionSearchCount
+    actionSurveys: actionSurveys,
+    actionGetMyAnswers:actionGetMyAnswers,
+    actionDelete:actionDelete
   })(Cards)
 
 export default MainList
